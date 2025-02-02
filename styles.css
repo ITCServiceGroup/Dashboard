@@ -1,0 +1,356 @@
+/* Global Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+/* Dashboard Container */
+#dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+#branding-logo {
+  display: block;
+  margin: 0 auto 20px auto; /* centers the logo and adds some bottom spacing */
+  max-width: 150px;        /* adjust this value as needed for a smaller logo */
+  height: auto;
+}
+
+/* Filter Container & Rows */
+#filter-container {
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;  /* This vertically centers all child elements */
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  background-color: #f8f8f8;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.filter-row label,
+.filter-row select,
+.filter-row input {
+  margin-right: 20px;
+}
+
+.filter-row label {
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #1c447f;
+  line-height: 40px;
+}
+
+.filter-row select,
+.filter-row input {
+  padding: 8px 10px;
+  border: 2px solid #1c447f;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-row select:focus,
+.filter-row input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 86, 179, 0.3);
+  outline: none;
+}
+
+#apply-filters {
+  padding: 6px 12px;
+  background-color: #1b4e99;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#apply-filters:hover {
+  background-color: #1c447f;
+}
+
+#results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+#results-table th,
+#results-table td {
+  border: 1px solid #ddd;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+#results-table th {
+  background: linear-gradient(135deg, #1c447f, #275f9e);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.3s ease;
+}
+
+#results-table th:hover {
+  background: #1c447f;
+}
+
+#results-table td {
+  background-color: #f8f8f8;
+}
+
+.pagination {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.pagination button {
+  padding: 10px 14px;
+  margin: 0 5px;
+  border: 1px solid #1c447f;
+  background-color: #fff;
+  color: #1c447f;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #1c447f;
+  color: #fff;
+}
+
+.pagination button.active {
+  background-color: #1c447f;
+  color: #fff;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.export-buttons {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.export-buttons button {
+  padding: 10px 16px;
+  margin: 0 10px;
+  background-color: #1c447f;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.export-buttons button:hover {
+  background-color: #1b4e99;
+  transform: translateY(-2px);
+}
+
+.custom-date-select {
+  padding: 8px 10px 2px 2px;
+  border: 2px solid #1c447f;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#date-range-row label[for="start-date"] {
+  margin-left: 20px; /* Adjust as needed */
+}
+
+/* =========================
+   CHOICES.JS MULTI-SELECT CUSTOMIZATIONS
+   ========================= */
+
+/* These rules override the remove button and the dropdown container */
+
+/* Force the Choices container to behave like an inline-flex element
+   so that it vertically aligns with its adjacent label */
+   .choices {
+    display: inline-flex !important;
+    align-items: center;
+    vertical-align: middle;
+  }
+
+.choices__inner {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 10px !important;
+  line-height: normal !important;
+  padding: 0 10px 0 8px !important;
+  box-sizing: border-box;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.choices__inner:focus,
+.choices__inner:focus-within,
+.choices__inner:hover {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.choices__inner::after {
+  content: '\25BC' !important;
+  position: absolute !important;
+  right: 35px !important;
+  top: 10px !important;
+  transform: none !important;
+  pointer-events: none !important;
+  color: #1c447f !important;
+  font-size: 0.9em !important;
+}
+
+.choices__button > svg {
+  display: none !important;
+}
+
+.choices__button {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 4px !important;
+  margin-left: 4px !important;
+  position: relative !important;
+}
+
+.choices__button::after {
+  content: "×" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  color: #1c447f !important;
+  font-size: 1em !important;
+  line-height: 1 !important;
+}
+
+.choices__list--multiple {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+}
+
+.choices__list--multiple .choices__item {
+  display: block !important;
+  margin-bottom: 0 !important;
+}
+
+.choices__list--multiple .choices__item {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #333 !important;
+}
+
+/* =========================
+   CUSTOM STYLING FOR CHOICES DROP-DOWN OPTIONS VIA EXTRA CLASS
+   ========================= */
+
+/* We update our custom template (dashboard.js) to add the extra class "custom-choice" to each drop-down option.
+   Then we style that class here. */
+.custom-choice {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #f0f8ff;
+  color: #1c447f;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 4px 0;
+  white-space: nowrap;
+}
+
+.custom-choice:hover {
+  background-color: #d0e0f0;
+  color: #1b4e99;
+}
+
+.custom-choice[aria-selected="true"] {
+  background-color: #c0d0e0;
+  color: #1c447f;
+  font-weight: 600;
+}
+
+.custom-choice {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Define a grid for the charts: 2 columns, 3 rows */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* Optionally, force a fixed height for pie/doughnut charts (if needed) */
+#timeChart, 
+#marketChart {
+  height: 300px; /* Adjust as needed */
+}
+
+/* Optionally, ensure other charts are sized appropriately */
+#scoreChart,
+#trendChart,
+#supervisorChart,
+#scatterChart {
+  height: auto;
+  /* You may set a min-height if desired */
+  min-height: 300px;
+}
+
+/* --- Separation and Charts Title Styling --- */
+#charts-container {
+  margin-top: 40px;  /* Adds separation between the data and the charts section */
+  padding-top: 20px;
+  border-top: 2px solid #1c447f; /* Optional: adds a subtle dividing line */
+}
+
+#charts-container h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #1c447f;
+  margin-bottom: 20px;
+}
+
+/* --- Clear Filters Button Styling --- */
+/* Duplicate the Apply Filters button styling and add left margin */
+#clear-filters {
+  padding: 6px 12px;
+  background-color: #1b4e99;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;  /* Adds space between Apply and Clear Filters */
+}
+
+#clear-filters:hover {
+  background-color: #1c447f;
+}

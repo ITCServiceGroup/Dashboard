@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Results Dashboard</title>
+  <!-- Reuse your fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Load Choices.js CSS first -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+  <!-- Load Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Then load your custom styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="dashboard-container">
+    <!-- Branding (reuse your logo) -->
+    <img src="assets/images/logo.png" alt="Service Tech Logo" id="branding-logo" crossOrigin="anonymous" />    <h1 id="dashboard-title">Quiz Dashboard</h1>
+
+    <!-- Filter Form -->
+    <div id="filter-container">
+      <form id="filter-form">
+        <!-- Row 1: Date Range Filtering -->
+<div class="filter-row" id="date-range-row">
+    <div class="filter-pair">
+      <label for="date-preset">Date Range:</label>
+      <select id="date-preset" name="date_preset">
+        <option value="custom">Custom</option>
+        <option value="last_7_days">Last 7 Days</option>
+        <option value="last_month">Last Month</option>
+        <option value="last_quarter">Last Quarter</option>
+      </select>
+    </div>
+    <div class="filter-pair">
+      <label for="start-date">Start:</label>
+      <input type="date" id="start-date" name="start_date" />
+    </div>
+    <div class="filter-pair">
+      <label for="end-date">End:</label>
+      <input type="date" id="end-date" name="end_date" />
+    </div>
+  </div>
+        
+        <!-- Row 2: Multi-select Fields (Supervisor, LDAP, Market) -->
+        <div class="filter-row" id="multiselect-row">
+            <div class="filter-pair">
+              <label for="filter-supervisor">Supervisor:</label>
+              <select id="filter-supervisor" name="supervisor" multiple></select>
+            </div>
+            <div class="filter-pair">
+              <label for="filter-ldap">LDAP:</label>
+              <select id="filter-ldap" name="ldap" multiple></select>
+            </div>
+            <div class="filter-pair">
+              <label for="filter-market">Market:</label>
+              <select id="filter-market" name="market" multiple></select>
+            </div>
+          </div>
+        
+        <!-- Row 3: Score and Time Filters -->
+        <div class="filter-row" id="score-time-row">
+          <label for="min-score">Min Score:</label>
+          <input type="number" id="min-score" name="min_score" min="0" max="1" step="0.01" placeholder="0" />
+          
+          <label for="max-score">Max Score:</label>
+          <input type="number" id="max-score" name="max_score" min="0" max="1" step="0.01" placeholder="1" />
+          
+          <label for="min-time">Min Time (sec):</label>
+          <input type="number" id="min-time" name="min_time" placeholder="0" />
+          
+          <label for="max-time">Max Time (sec):</label>
+          <input type="number" id="max-time" name="max_time" placeholder="e.g., 2000" />
+        </div>
+        
+        <!-- Buttons: Apply Filters and (conditionally visible) Clear Filters -->
+        <button type="submit" id="apply-filters">Apply Filters</button>
+        <button type="button" id="clear-filters" style="display:none;">Clear Filters</button>
+      </form>
+    </div>
+
+    <!-- Results Table -->
+    <table id="results-table">
+      <thead>
+        <tr>
+            <th data-sort="date_of_test">Date</th>
+            <th data-sort="ldap">LDAP</th>
+            <th data-sort="quiz_type">Quiz Type</th>
+            <th data-sort="score_value">Score Text</th>
+            <th data-sort="supervisor">Supervisor</th>
+            <th data-sort="market">Market</th>
+            <th data-sort="time_taken">Time Taken</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <!-- Results will be injected here -->
+      </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" id="pagination-controls"></div>
+
+    <!-- Export Options -->
+    <div class="export-buttons">
+      <button id="export-csv">Export CSV</button>
+      <button id="export-pdf">Export PDF</button>
+    </div>
+
+  <!-- New Section: Graphs/Charts -->
+<div id="charts-container">
+    <h2>Charts</h2>
+    <table style="width:100%; border-collapse: collapse;">
+      <tr>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="scoreChart"></canvas>
+        </td>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="timeChart"></canvas>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="trendChart"></canvas>
+        </td>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="supervisorChart"></canvas>
+        </td>
+      </tr>
+      <tr>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="marketChart"></canvas>
+        </td>
+        <td style="width:50%; padding: 10px;">
+          <canvas id="scatterChart"></canvas>
+        </td>
+      </tr>
+    </table>
+  </div>
+ </div>
+
+  <!-- Include required libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.5/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- IMPORTANT: Include a time adapter for Chart.js (this is required for time scales) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <!-- Include Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Initialize Supabase -->
+  <script>
+    const supabaseUrl = "https://scmwpoowjhzawvmiyohz.supabase.co";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbXdwb293amh6YXd2bWl5b2h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNTA1NDYsImV4cCI6MjA1MzgyNjU0Nn0.Ul1dRzTe7QQ81lmgTXNZ1QEYtmWDzzUdVP-xPKZXKQI";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+    window.supabase = supabaseClient;
+    console.log('Supabase client for dashboard initialized:', supabaseClient);
+  </script>
+
+  <!-- Dashboard JavaScript -->
+  <script src="dashboard.js"></script>
+  <!-- Include charts.js AFTER dashboard.js -->
+  <script src="charts.js"></script>
+</body>
+</html>
