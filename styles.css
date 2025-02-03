@@ -362,3 +362,9 @@ body {
   color: #1c447f;
   margin-bottom: 20px;
 }
+
+.filter-indicator {
+  font-size: 0.9em;
+  margin-left: 5px;
+  color: #ffffff;  /* Adjust as needed */
+}

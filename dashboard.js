@@ -93,17 +93,37 @@ const supervisorChoices = new Choices('#filter-supervisor', {
   
     // Remove pagination-related resetting; simply load results on sorting.
     document.querySelectorAll('#results-table th').forEach(th => {
-      th.addEventListener('click', () => {
-        const sortField = th.dataset.sort;
-        if (currentSortField === sortField) {
-          currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
-        } else {
-          currentSortField = sortField;
-          currentSortOrder = 'asc';
-        }
-        loadResults();
+        th.addEventListener('click', () => {
+          const sortField = th.dataset.sort;
+          
+          // Toggle sort order if same header clicked; otherwise, default to ascending.
+          if (currentSortField === sortField) {
+            currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
+          } else {
+            currentSortField = sortField;
+            currentSortOrder = 'asc';
+          }
+          
+          // Update the indicator icons for all header cells.
+          document.querySelectorAll('#results-table th').forEach(header => {
+            const indicator = header.querySelector('.filter-indicator');
+            // For non-active headers, you might choose to show a default icon or leave it blank.
+            // Here, we'll set non-active headers back to a default down arrow:
+            indicator.innerHTML = '&#x25BC;';
+          });
+          
+          // Update the clicked header's indicator to reflect the sort order.
+          const currentIndicator = th.querySelector('.filter-indicator');
+          if (currentSortOrder === 'asc') {
+            currentIndicator.innerHTML = '&#x25B2;'; // up arrow
+          } else {
+            currentIndicator.innerHTML = '&#x25BC;'; // down arrow
+          }
+          
+          // Load the results with the new sort order.
+          loadResults();
+        });
       });
-    });
   
     document.getElementById('filter-form').addEventListener('submit', (e) => {
       e.preventDefault();
