@@ -82,9 +82,10 @@
     </div>
 
     <!-- Results Table -->
-    <table id="results-table">
-      <thead>
-        <tr>
+    <div id="results-container">
+      <table id="results-table">
+        <thead>
+          <tr>
             <th data-sort="date_of_test">Date</th>
             <th data-sort="ldap">LDAP</th>
             <th data-sort="quiz_type">Quiz Type</th>
@@ -92,15 +93,13 @@
             <th data-sort="supervisor">Supervisor</th>
             <th data-sort="market">Market</th>
             <th data-sort="time_taken">Time Taken</th>
-        </tr>
-      </thead>
-      <tbody id="results-body">
-        <!-- Results will be injected here -->
-      </tbody>
-    </table>
-
-    <!-- Pagination Controls -->
-    <div class="pagination" id="pagination-controls"></div>
+          </tr>
+        </thead>
+        <tbody id="results-body">
+          <!-- Results will be injected here -->
+        </tbody>
+      </table>
+    </div>
 
     <!-- Export Options -->
     <div class="export-buttons">

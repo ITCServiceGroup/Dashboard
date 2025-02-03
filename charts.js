@@ -42,7 +42,7 @@
         timeChart = new Chart(ctx.getContext('2d'), {
             type: 'pie',
             data: {
-                labels: ['<5 min', '5-10 min', '>10 min'],
+                labels: ['<10 mins', '10-20 mins', '>20 mins'],
                 datasets: [{
                     label: 'Time Taken Distribution',
                     data: [0, 0, 0],
@@ -71,8 +71,8 @@
         let bucket1 = 0, bucket2 = 0, bucket3 = 0;
         data.forEach(item => {
             const minutes = item.time_taken / 60;
-            if (minutes < 5) bucket1++;
-            else if (minutes < 10) bucket2++;
+            if (minutes < 10) bucket1++;
+            else if (minutes < 20) bucket2++;
             else bucket3++;
         });
         timeChart.data.datasets[0].data = [bucket1, bucket2, bucket3];

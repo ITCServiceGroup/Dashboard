@@ -354,3 +354,17 @@ body {
 #clear-filters:hover {
   background-color: #1c447f;
 }
+
+/* Set the container height to roughly the height of 15 rows.
+   Adjust the height value as needed depending on your row size. */
+   #results-container {
+    max-height: 600px;  /* You may need to tweak this value */
+    overflow-y: auto;
+    border: 1px solid #ddd; /* optional: to visually separate the container */
+  }
+  
+  /* Optional: Ensure the table takes full width */
+  #results-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
