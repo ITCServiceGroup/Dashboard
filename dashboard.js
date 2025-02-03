@@ -59,7 +59,9 @@ const datePresetChoices = new Choices('#date-preset', {
     loadFilterOptions();
     
     document.getElementById('date-preset').addEventListener('change', handleDatePresetChange);
-    
+    // Immediately update the date inputs based on the default preset.
+    handleDatePresetChange();
+
     document.querySelectorAll('#results-table th').forEach(th => {
       th.addEventListener('click', () => {
         const sortField = th.dataset.sort;
@@ -429,12 +431,10 @@ const datePresetChoices = new Choices('#date-preset', {
     
     // Initialize Flatpickr on the start and end date inputs.
     flatpickr("#start-date", {
-      dateFormat: "Y-m-d",
-      defaultDate: new Date()
+    dateFormat: "Y-m-d"
     });
     flatpickr("#end-date", {
-      dateFormat: "Y-m-d",
-      defaultDate: new Date()
+    dateFormat: "Y-m-d"
     });
 
 // Function to override the inline width of the Choices.js containers
