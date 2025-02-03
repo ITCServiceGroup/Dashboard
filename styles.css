@@ -20,7 +20,7 @@ body {
 #branding-logo {
   display: block;
   margin: 0 auto 20px auto; /* centers the logo and adds some bottom spacing */
-  max-width: 150px;        /* adjust this value as needed for a smaller logo */
+  max-width: 200px;        /* adjust this value as needed for a smaller logo */
   height: auto;
 }
 
