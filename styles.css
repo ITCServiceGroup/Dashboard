@@ -99,13 +99,18 @@ body {
 }
 
 #results-table th {
-  background: linear-gradient(135deg, #1c447f, #275f9e);
+  background-image: linear-gradient(135deg, #1c447f, #275f9e);
+  background-color: #1c447f; /* fallback solid color */
   color: #ffffff;
   cursor: pointer;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
+  outline: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: background-color;
 }
 
 #results-table th:hover {
