@@ -232,24 +232,6 @@ body {
   display: none !important;
 }
 
-.choices__button {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 4px !important;
-  margin-left: 4px !important;
-  position: relative !important;
-}
-
-.choices__button::after {
-  content: "×" !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  color: #1c447f !important;
-  font-size: 1em !important;
-  line-height: 1 !important;
-}
-
 .choices__list--multiple {
   flex-direction: column !important;
   align-items: flex-start !important;
@@ -368,3 +350,9 @@ body {
     width: 100%;
     border-collapse: collapse;
   }
+
+ /* Constrain the container for selected items */
+.choices__list--multiple {
+  max-height: 50px;  /* Adjust this value to the desired height */
+  overflow-y: auto;
+}

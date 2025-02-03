@@ -1,34 +1,65 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Choices on the multi‑select fields
-    const supervisorChoices = new Choices('#filter-supervisor', {
-      removeItemButton: true,
-      placeholder: true,
-      placeholderValue: 'Select Supervisor(s)',
-      itemSelectText: '', // <-- Remove default text here
-      classNames: {
-        itemChoice: 'custom-choice'
+    function customTemplates(template) {
+        return {
+          item: (classNames, data) => {
+            // This template defines the markup for a selected item (including the remove button).
+            return template(`
+              <div class="${classNames.item} ${data.highlighted ? classNames.highlightedState : ''}" 
+                   data-item 
+                   data-id="${data.id}" 
+                   data-value="${data.value}" 
+                   ${data.active ? 'aria-selected="true"' : ''} 
+                   ${data.disabled ? 'aria-disabled="true"' : ''}>
+                ${data.label}
+                <button type="button" 
+                        style="color: #1c447f; font-size: 16px; line-height: 20px; background: transparent; border: none; padding: 0; margin-left: 4px;"
+                        class="${classNames.button}" 
+                        data-button>
+                  ×
+                </button>
+              </div>
+            `);
+          },
+          
+        };
       }
-    });
+    
+    // Initialize Choices on the multi‑select fields using the custom template.
+const supervisorChoices = new Choices('#filter-supervisor', {
+    removeItemButton: true,
+    placeholder: true,
+    placeholderValue: 'Select Supervisor(s)',
+    itemSelectText: '', // Remove default text
+    callbackOnCreateTemplates: customTemplates, // Use our custom templates
+    classNames: {
+      itemChoice: 'custom-choice',
+      itemButton: 'custom-remove-button'
+    }
+  });
   
-    const ldapChoices = new Choices('#filter-ldap', {
-      removeItemButton: true,
-      placeholder: true,
-      placeholderValue: 'Select LDAP(s)',
-      itemSelectText: '', // <-- Remove default text here
-      classNames: {
-        itemChoice: 'custom-choice'
-      }
-    });
+  const ldapChoices = new Choices('#filter-ldap', {
+    removeItemButton: true,
+    placeholder: true,
+    placeholderValue: 'Select LDAP(s)',
+    itemSelectText: '', // Remove default text
+    callbackOnCreateTemplates: customTemplates,
+    classNames: {
+      itemChoice: 'custom-choice',
+      itemButton: 'custom-remove-button'
+    }
+  });
   
-    const marketChoices = new Choices('#filter-market', {
-      removeItemButton: true,
-      placeholder: true,
-      placeholderValue: 'Select Market(s)',
-      itemSelectText: '', // <-- Remove default text here
-      classNames: {
-        itemChoice: 'custom-choice'
-      }
-    });
+  const marketChoices = new Choices('#filter-market', {
+    removeItemButton: true,
+    placeholder: true,
+    placeholderValue: 'Select Market(s)',
+    itemSelectText: '', // Remove default text
+    callbackOnCreateTemplates: customTemplates,
+    classNames: {
+      itemChoice: 'custom-choice',
+      itemButton: 'custom-remove-button'
+    }
+  });
   
     // For the date preset dropdown, it's already set:
     const datePresetChoices = new Choices('#date-preset', {
@@ -399,4 +430,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Use a timeout to ensure Choices.js has recalculated its styles
     setTimeout(overrideChoicesWidth, 100);
+
+// =====================================================
+// REMOVE THE DEFAULT PSEUDO‑ELEMENT AND SET CUSTOM CONTENT
+// =====================================================
+setTimeout(() => {
+    // 1. Inject a CSS rule to hide the default ::after pseudo‑element on the remove buttons.
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+      html body #dashboard-container .choices__button::after {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+  
+    // 2. Iterate over each remove button and set its text content and inline styles.
+    document.querySelectorAll('.choices__button').forEach(btn => {
+      // Remove any existing inner HTML and set the text content to our custom "×"
+      btn.textContent = '×';
+      // Force inline styles so that our remove button uses dark blue
+      btn.style.setProperty('color', '#1c447f', 'important');
+      btn.style.setProperty('font-size', '16px', 'important');
+      btn.style.setProperty('line-height', '20px', 'important');
+      btn.style.setProperty('background-color', 'transparent', 'important');
+    });
+  }, 200);
   });
