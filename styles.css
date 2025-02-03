@@ -356,3 +356,9 @@ body {
   max-height: 50px;  /* Adjust this value to the desired height */
   overflow-y: auto;
 }
+
+#dashboard-title {
+  text-align: center;
+  color: #1c447f;
+  margin-bottom: 20px;
+}
