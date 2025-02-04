@@ -211,37 +211,53 @@ const supervisorChoices = new Choices('#filter-supervisor', {
     }
   
     function handleDatePresetChange() {
-      const preset = document.getElementById('date-preset').value;
-      const startDateInput = document.getElementById('start-date');
-      const endDateInput = document.getElementById('end-date');
-      const today = new Date();
-      let startDate, endDate;
-  
-      if (preset === 'last_7_days') {
-        endDate = today;
-        startDate = new Date();
-        startDate.setDate(today.getDate() - 7);
-      } else if (preset === 'last_month') {
-        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-      } else if (preset === 'last_quarter') {
-        const currentMonth = today.getMonth();
-        const currentQuarter = Math.floor(currentMonth / 3) + 1;
-        const lastQuarter = currentQuarter - 1 > 0 ? currentQuarter - 1 : 4;
-        let year = today.getFullYear();
-        if (currentQuarter === 1) {
-          year = year - 1;
+        const preset = document.getElementById('date-preset').value;
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const today = new Date();
+        let startDate, endDate;
+      
+        if (preset === 'last_7_days') {
+          endDate = today;
+          startDate = new Date();
+          startDate.setDate(today.getDate() - 7);
+        } else if (preset === 'last_month') {
+          startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        } else if (preset === 'last_quarter') {
+          const currentMonth = today.getMonth();
+          const currentQuarter = Math.floor(currentMonth / 3) + 1;
+          const lastQuarter = currentQuarter - 1 > 0 ? currentQuarter - 1 : 4;
+          let year = today.getFullYear();
+          if (currentQuarter === 1) {
+            year = year - 1;
+          }
+          const firstMonthOfLastQuarter = (lastQuarter - 1) * 3;
+          startDate = new Date(year, firstMonthOfLastQuarter, 1);
+          endDate = new Date(year, firstMonthOfLastQuarter + 3, 0);
+        } else if (preset === 'this_month') {
+          // This Month: from the 1st of the current month to the last day of the current month.
+          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        } else if (preset === 'this_quarter') {
+          // This Quarter: determine the current quarter
+          const currentMonth = today.getMonth(); // 0-based (0 = January)
+          const currentQuarter = Math.floor(currentMonth / 3); // 0, 1, 2, or 3
+          startDate = new Date(today.getFullYear(), currentQuarter * 3, 1);
+          endDate = new Date(today.getFullYear(), currentQuarter * 3 + 3, 0);
+        } else if (preset === 'this_year') {
+          // This Year: from January 1 to December 31 of the current year.
+          startDate = new Date(today.getFullYear(), 0, 1);
+          endDate = new Date(today.getFullYear(), 11, 31);
+        } else {
+          // If custom or any unhandled option, do nothing.
+          return;
         }
-        const firstMonthOfLastQuarter = (lastQuarter - 1) * 3;
-        startDate = new Date(year, firstMonthOfLastQuarter, 1);
-        endDate = new Date(year, firstMonthOfLastQuarter + 3, 0);
-      } else {
-        return;
+      
+        // Format the dates as YYYY-MM-DD
+        startDateInput.value = startDate.toISOString().split('T')[0];
+        endDateInput.value = endDate.toISOString().split('T')[0];
       }
-      // Format the dates as YYYY-MM-DD
-      startDateInput.value = startDate.toISOString().split('T')[0];
-      endDateInput.value = endDate.toISOString().split('T')[0];
-    }
   
     async function loadResults() {
       let query = supabase.from('Quiz Results').select('*', { count: 'exact' });
