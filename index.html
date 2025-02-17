@@ -142,6 +142,39 @@
   </div>
  </div>
 
+  <!-- PDF Modal -->
+  <div id="pdf-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div id="pdf-loading" style="display: none; text-align: center; padding: 20px;">Loading PDF...</div>
+      <div id="pdf-error" style="display: none; color: red; text-align: center; padding: 20px;">
+        Error loading PDF. <button onclick="retryLoadPDF()" class="retry-btn">Retry</button>
+      </div>
+      <div class="pdf-container">
+        <iframe id="pdf-viewer" allow="fullscreen"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .retry-btn {
+      padding: 6px 12px;
+      background-color: #1c447f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .retry-btn:hover {
+      background-color: #1b4e99;
+    }
+    #pdf-loading {
+      font-size: 16px;
+      color: #1c447f;
+    }
+  </style>
+
   <!-- Include required libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.5/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>

@@ -1,4 +1,52 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Modal functionality
+    const modal = document.getElementById('pdf-modal');
+    const closeModal = document.querySelector('.close-modal');
+    const pdfViewer = document.getElementById('pdf-viewer');
+
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+        pdfViewer.src = '';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            pdfViewer.src = '';
+        }
+    });
+
+    async function viewPDF(pdfUrl) {
+        try {
+            console.log('Viewing PDF:', pdfUrl);
+            const { data, error } = await supabase
+                .storage
+                .from('quiz-pdfs')
+                .createSignedUrl(pdfUrl, 3600); // 1 hour expiry
+
+            if (error) {
+                console.error('Supabase error:', error);
+                throw error;
+            }
+
+            // Check for both signedUrl and signedURL
+            const url = data?.signedUrl || data?.signedURL;
+            if (!url) {
+                console.error('No signed URL in response:', data);
+                throw new Error('Failed to generate signed URL');
+            }
+
+            console.log('Loading PDF with URL:', url);
+            console.log('Loading PDF with URL:', url);
+            pdfViewer.src = url;
+            modal.style.display = 'block';
+        } catch (error) {
+            console.error('Error viewing PDF:', error);
+            if (error.message) console.error('Error details:', error.message);
+            alert('Error loading PDF. Please try again.');
+        }
+    }
+
     function customTemplates(template) {
         return {
           item: (classNames, data) => {
@@ -326,28 +374,132 @@ const supervisorChoices = new Choices('#filter-supervisor', {
       }
     }
   
-    function renderResults(data) {
-      const tbody = document.getElementById('results-body');
-      tbody.innerHTML = '';
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">No results found.</td></tr>';
-        return;
+    async function getPDFUrl(path) {
+      try {
+        console.log('Requesting signed URL for path:', path);
+        
+        const { data, error } = await supabase
+          .storage
+          .from('quiz-pdfs')
+          .createSignedUrl(path, 3600); // 1 hour expiry
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        // Check for both signedUrl and signedURL in response
+        const url = data?.signedUrl || data?.signedURL;
+        
+        if (!url) {
+          console.error('No signed URL in response:', data);
+          throw new Error('Failed to generate signed URL');
+        }
+
+        console.log('Successfully generated signed URL');
+        return url;
+
+      } catch (err) {
+        console.error('Error getting signed URL:', err);
+        if (err.message) console.error('Error message:', err.message);
+        if (err.statusCode) console.error('Status code:', err.statusCode);
+        console.error('Full error object:', JSON.stringify(err, null, 2));
+        return null;
       }
-      data.forEach(item => {
-        const date = new Date(item.date_of_test).toLocaleDateString();
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${date}</td>
-            <td>${item.ldap}</td>
-            <td>${item.quiz_type}</td>
-            <td>${item.score_text}</td>
-            <td>${item.supervisor}</td>
-            <td>${item.market}</td>
-            <td>${formatTime(item.time_taken)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
     }
+
+    let currentPDFPath = null;
+
+    async function openPDFViewer(pdfPath) {
+      const modal = document.getElementById('pdf-modal');
+      const viewer = document.getElementById('pdf-viewer');
+      const loading = document.getElementById('pdf-loading');
+      const error = document.getElementById('pdf-error');
+      
+      try {
+        console.log('Opening PDF viewer for path:', pdfPath);
+        currentPDFPath = pdfPath;
+        
+        // Reset state
+        viewer.src = '';
+        viewer.style.display = 'none';
+        error.style.display = 'none';
+        loading.style.display = 'block';
+        modal.style.display = 'block';
+
+        // Get signed URL
+        const signedUrl = await getPDFUrl(pdfPath);
+        
+        if (!signedUrl) {
+          throw new Error('Could not generate signed URL for PDF');
+        }
+
+        console.log('Loading PDF with URL:', signedUrl);
+
+        // Show PDF
+        loading.style.display = 'none';
+        viewer.style.display = 'block';
+        viewer.src = signedUrl;
+
+        // Add error handler for iframe
+        viewer.onerror = (e) => {
+          console.error('Error loading PDF in iframe:', e);
+          loading.style.display = 'none';
+          error.style.display = 'block';
+        };
+
+      } catch (err) {
+        console.error('Error opening PDF:', err);
+        if (err.message) console.error('Error details:', err.message);
+        loading.style.display = 'none';
+        error.style.display = 'block';
+      }
+    }
+
+    // Add retry function to window for the onclick handler
+    window.retryLoadPDF = async function() {
+      if (currentPDFPath) {
+        await openPDFViewer(currentPDFPath);
+      }
+    };
+
+    function renderResults(data) {
+        const tbody = document.getElementById('results-body');
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7">No results found.</td></tr>';
+            return;
+        }
+        data.forEach(item => {
+            const date = new Date(item.date_of_test).toLocaleDateString();
+            const tr = document.createElement('tr');
+            const viewButton = item.pdf_url ? 
+                `<button class="view-pdf-btn" data-pdf-path="${item.pdf_url}">View PDF</button>` : 
+                '';
+            tr.innerHTML = `
+                <td>${date}</td>
+                <td>${item.ldap}</td>
+                <td>${item.quiz_type}</td>
+                <td>${item.score_text} ${viewButton}</td>
+                <td>${item.supervisor}</td>
+                <td>${item.market}</td>
+                <td>${formatTime(item.time_taken)}</td>
+            `;
+            tbody.appendChild(tr);
+
+            // Add click handler for the View PDF button if it exists
+            const pdfButton = tr.querySelector('.view-pdf-btn');
+            if (pdfButton) {
+                pdfButton.addEventListener('click', async function() {
+                    const pdfPath = this.dataset.pdfPath;
+                    await openPDFViewer(pdfPath);
+                });
+            }
+        });
+    }
+
+    // Make viewPDF function globally available
+    window.viewPDF = viewPDF;
   
     // Helper function to convert seconds to Minutes:Seconds (MM:SS)
     function formatTime(seconds) {
@@ -427,16 +579,30 @@ const supervisorChoices = new Choices('#filter-supervisor', {
       }
     
       const opt = {
-        margin: [10, 15, 10, 15],
+        margin: [5, 10, 5, 10],
         filename: 'quiz_results.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { 
+          type: 'jpeg',
+          quality: 0.7
+        },
         html2canvas: {
-          scale: 2,
+          scale: 1,
           useCORS: true,
           allowTaint: false
         },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: 'css', before: '.page-break', avoid: 'tr' }
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait',
+          compress: true,
+          compressPdf: true
+        },
+        pagebreak: { 
+          mode: ['css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: '.question-block, .summary-item, tr'
+        }
       };
     
       html2pdf().set(opt).from(element).save()
