@@ -1,5 +1,19 @@
 (function(){
     let scoreChart, timeChart, trendChart, supervisorChart, marketChart, scatterChart;
+
+    // Define a color palette for supervisors
+    const colorPalette = [
+        { bg: 'rgba(255, 99, 132, 0.5)', border: 'rgb(255, 99, 132)' },
+        { bg: 'rgba(54, 162, 235, 0.5)', border: 'rgb(54, 162, 235)' },
+        { bg: 'rgba(255, 206, 86, 0.5)', border: 'rgb(255, 206, 86)' },
+        { bg: 'rgba(75, 192, 192, 0.5)', border: 'rgb(75, 192, 192)' },
+        { bg: 'rgba(153, 102, 255, 0.5)', border: 'rgb(153, 102, 255)' },
+        { bg: 'rgba(255, 159, 64, 0.5)', border: 'rgb(255, 159, 64)' },
+        { bg: 'rgba(123, 239, 178, 0.5)', border: 'rgb(123, 239, 178)' },
+        { bg: 'rgba(238, 130, 238, 0.5)', border: 'rgb(238, 130, 238)' },
+        { bg: 'rgba(64, 224, 208, 0.5)', border: 'rgb(64, 224, 208)' },
+        { bg: 'rgba(255, 182, 193, 0.5)', border: 'rgb(255, 182, 193)' }
+    ];
   
     // --- 1. Score Distribution (Bar Chart) ---
     function initScoreChart() {
@@ -138,6 +152,7 @@
     function initSupervisorChart() {
         const ctx = document.getElementById('supervisorChart');
         if (!ctx) return;
+
         supervisorChart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
@@ -145,8 +160,8 @@
                 datasets: [{
                     label: 'Average Score (%)',
                     data: [],
-                    backgroundColor: 'rgba(153, 102, 255, 0.5)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: [],
+                    borderColor: [],
                     borderWidth: 1
                 }]
             },
@@ -173,14 +188,25 @@
         });
         const labels = [];
         const averages = [];
-        Object.keys(groups).forEach(sup => {
+        const backgroundColors = [];
+        const borderColors = [];
+
+        Object.keys(groups).sort().forEach((sup, index) => {
             labels.push(sup);
             const scores = groups[sup];
             const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
             averages.push(avg.toFixed(2));
+            
+            // Assign colors from palette, cycling through if more supervisors than colors
+            const colorIndex = index % colorPalette.length;
+            backgroundColors.push(colorPalette[colorIndex].bg);
+            borderColors.push(colorPalette[colorIndex].border);
         });
+
         supervisorChart.data.labels = labels;
         supervisorChart.data.datasets[0].data = averages;
+        supervisorChart.data.datasets[0].backgroundColor = backgroundColors;
+        supervisorChart.data.datasets[0].borderColor = borderColors;
         supervisorChart.update();
     }
   
@@ -195,22 +221,8 @@
                 datasets: [{
                     label: 'Number of Tests',
                     data: [],
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
-                        'rgba(54, 162, 235, 0.5)',
-                        'rgba(255, 205, 86, 0.5)',
-                        'rgba(75, 192, 192, 0.5)',
-                        'rgba(153, 102, 255, 0.5)',
-                        'rgba(255, 159, 64, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)',
-                        'rgb(75, 192, 192)',
-                        'rgb(153, 102, 255)',
-                        'rgb(255, 159, 64)'
-                    ],
+                    backgroundColor: [],
+                    borderColor: [],
                     borderWidth: 1
                 }]
             },
@@ -228,10 +240,22 @@
             const market = item.market;
             counts[market] = (counts[market] || 0) + 1;
         });
-        const labels = Object.keys(counts);
+        const labels = Object.keys(counts).sort();
         const datasetData = labels.map(label => counts[label]);
+        const backgroundColors = [];
+        const borderColors = [];
+
+        // Assign colors from palette
+        labels.forEach((market, index) => {
+            const colorIndex = index % colorPalette.length;
+            backgroundColors.push(colorPalette[colorIndex].bg);
+            borderColors.push(colorPalette[colorIndex].border);
+        });
+
         marketChart.data.labels = labels;
         marketChart.data.datasets[0].data = datasetData;
+        marketChart.data.datasets[0].backgroundColor = backgroundColors;
+        marketChart.data.datasets[0].borderColor = borderColors;
         marketChart.update();
     }
   
