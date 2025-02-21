@@ -47,14 +47,14 @@
                     label: 'Time Taken Distribution',
                     data: [0, 0, 0],
                     backgroundColor: [
-                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
                         'rgba(255, 205, 86, 0.5)',
-                        'rgba(75, 192, 192, 0.5)'
+                        'rgba(255, 99, 132, 0.5)'
                     ],
                     borderColor: [
-                        'rgb(255, 99, 132)',
+                        'rgb(75, 192, 192)',
                         'rgb(255, 205, 86)',
-                        'rgb(75, 192, 192)'
+                        'rgb(255, 99, 132)'
                     ],
                     borderWidth: 1
                 }]
