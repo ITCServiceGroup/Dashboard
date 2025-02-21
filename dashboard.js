@@ -337,19 +337,23 @@ const supervisorChoices = new Choices('#filter-supervisor', {
       const minScore = document.getElementById('min-score').value;
       const maxScore = document.getElementById('max-score').value;
       if (minScore !== '') {
-        query = query.gte('score_value', parseFloat(minScore));
+        // Convert percentage (0-100) to decimal (0-1)
+        query = query.gte('score_value', parseFloat(minScore) / 100);
       }
       if (maxScore !== '') {
-        query = query.lte('score_value', parseFloat(maxScore));
+        // Convert percentage (0-100) to decimal (0-1)
+        query = query.lte('score_value', parseFloat(maxScore) / 100);
       }
-  
+
       const minTime = document.getElementById('min-time').value;
       const maxTime = document.getElementById('max-time').value;
       if (minTime !== '') {
-        query = query.gte('time_taken', parseInt(minTime, 10));
+        // Convert minutes to seconds
+        query = query.gte('time_taken', parseInt(minTime, 10) * 60);
       }
       if (maxTime !== '') {
-        query = query.lte('time_taken', parseInt(maxTime, 10));
+        // Convert minutes to seconds
+        query = query.lte('time_taken', parseInt(maxTime, 10) * 60);
       }
   
       query = query.order(currentSortField, { ascending: currentSortOrder === 'asc' });
