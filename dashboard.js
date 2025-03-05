@@ -223,13 +223,18 @@ const supervisorChoices = new Choices('#filter-supervisor', {
     async function loadFilterOptions() {
       let { data: supervisors, error: supervisorError } = await supabase
         .from('Quiz Results')
-        .select('supervisor', { distinct: true });
+        .select('supervisor')
+        .not('supervisor', 'is', null)
+        .order('supervisor');
       if (supervisorError) {
         console.error('Error loading supervisors:', supervisorError);
       } else {
-        const supervisorOptions = supervisors
+        // Use Set to deduplicate supervisor values
+        const supervisorOptions = [...new Set(supervisors
           .filter(item => item.supervisor)
-          .map(item => ({ value: item.supervisor, label: item.supervisor }));
+          .map(item => item.supervisor))]
+          .sort()
+          .map(supervisor => ({ value: supervisor, label: supervisor }));
         supervisorChoices.setChoices(supervisorOptions, 'value', 'label', true);
       }
   
@@ -247,13 +252,22 @@ const supervisorChoices = new Choices('#filter-supervisor', {
   
       let { data: ldaps, error: ldapError } = await supabase
         .from('Quiz Results')
-        .select('ldap, supervisor', { distinct: true });
+        .select('ldap, supervisor')
+        .not('ldap', 'is', null)
+        .order('ldap');
       if (ldapError) {
         console.error('Error loading LDAPs:', ldapError);
       } else {
-        allLdapOptions = ldaps
+        // Use Map to deduplicate LDAP values while preserving supervisor relationship
+        allLdapOptions = [...new Map(ldaps
           .filter(item => item.ldap)
-          .map(item => ({ value: item.ldap, label: item.ldap, supervisor: item.supervisor }));
+          .map(item => [item.ldap, item]))
+          .values()]
+          .map(item => ({
+            value: item.ldap,
+            label: item.ldap,
+            supervisor: item.supervisor
+          }));
         ldapChoices.setChoices(allLdapOptions, 'value', 'label', true);
       }
     }
