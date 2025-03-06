@@ -588,48 +588,174 @@ const supervisorChoices = new Choices('#filter-supervisor', {
       document.body.removeChild(a);
     }
   
-    function exportPDF() {
+    async function exportPDF() {
       console.log("Export PDF triggered.");
-      const element = document.getElementById('dashboard-container');
-      if (!element) {
-        console.error("dashboard-container element not found.");
+      const dashboardContainer = document.getElementById('dashboard-container');
+      const resultsContainer = document.getElementById('results-container');
+      
+      if (!dashboardContainer || !resultsContainer) {
+        console.error("Required elements not found.");
         return;
       }
-    
-      const opt = {
-        margin: [5, 10, 5, 10],
-        filename: 'quiz_results.pdf',
-        image: { 
-          type: 'jpeg',
-          quality: 0.7
-        },
-        html2canvas: {
-          scale: 1,
-          useCORS: true,
-          allowTaint: false
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'portrait',
-          compress: true,
-          compressPdf: true
-        },
-        pagebreak: { 
-          mode: ['css', 'legacy'],
-          before: '.page-break-before',
-          after: '.page-break-after',
-          avoid: '.question-block, .summary-item, tr'
-        }
+
+      // Store the original scroll position
+      const scrollPos = window.scrollY;
+
+      // Function to reset container state
+      const resetContainer = () => {
+        dashboardContainer.classList.remove('exporting-pdf');
+        setTimeout(() => {
+          // Add transition class
+          resultsContainer.classList.add('transitioning');
+          
+          // Reset to scrollable state
+          resultsContainer.style.height = '650px';
+          resultsContainer.style.maxHeight = '650px';
+          resultsContainer.style.overflow = 'auto';
+          
+          // Remove transition class after animation
+          setTimeout(() => {
+            resultsContainer.classList.remove('transitioning');
+          }, 300);
+          
+          // Restore scroll position
+          window.scrollTo(0, scrollPos);
+        }, 100);
       };
-    
-      html2pdf().set(opt).from(element).save()
-        .then(() => {
-          console.log("PDF export completed successfully.");
-        })
-        .catch(err => {
-          console.error("Error exporting PDF:", err);
+
+      try {
+        // Add exporting-pdf class to hide View PDF buttons
+        dashboardContainer.classList.add('exporting-pdf');
+
+        // Prepare container for PDF generation
+        await new Promise(resolve => {
+          setTimeout(() => {
+            resultsContainer.style.height = 'auto';
+            resultsContainer.style.maxHeight = 'none';
+            resultsContainer.style.overflow = 'visible';
+            resolve();
+          }, 300);
         });
+
+        // Force a reflow
+        dashboardContainer.offsetHeight;
+
+        const pdfOptions = {
+          margin: [10, 5, 10, 5],
+          filename: 'quiz_results.pdf',
+          image: { type: 'jpeg', quality: 1 },
+          pagebreak: { 
+            mode: ['avoid-all', 'css', 'legacy'],
+            before: '[data-pagebreak="true"]',
+            after: '[data-pagebreak="true"]'
+          },
+          jsPDF: { 
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'landscape',
+            compress: true
+          },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scrollY: -window.scrollY,
+            windowWidth: 2000,
+            onclone: function(clonedDoc) {
+              const clonedContainer = clonedDoc.getElementById('results-container');
+              const resultsTable = clonedDoc.getElementById('results-table');
+              const chartCanvases = clonedDoc.querySelectorAll('canvas');
+
+              if (clonedContainer) {
+                Object.assign(clonedContainer.style, {
+                  height: 'auto',
+                  maxHeight: 'none',
+                  overflow: 'visible',
+                  position: 'static',
+                  display: 'block'
+                });
+              }
+
+              if (resultsTable) {
+                Object.assign(resultsTable.style, {
+                  width: '100%',
+                  border: '1px solid #ddd',
+                  borderCollapse: 'collapse',
+                  tableLayout: 'fixed',
+                  display: 'table',
+                  visibility: 'visible',
+                  maxHeight: 'none',
+                  height: 'auto'
+                });
+
+                const rows = Array.from(resultsTable.getElementsByTagName('tr'));
+                rows.forEach((row, index) => {
+                  Object.assign(row.style, {
+                    display: 'table-row',
+                    pageBreakInside: 'auto',
+                    visibility: 'visible'
+                  });
+                  
+                  // Add pagebreak marker every 20 rows
+                  if (index > 0 && index % 20 === 0) {
+                    row.setAttribute('data-pagebreak', 'true');
+                  }
+                });
+
+                // Ensure table headers appear correctly
+                const headerRow = resultsTable.querySelector('thead tr');
+                if (headerRow) {
+                  headerRow.style.backgroundColor = '#f8f9fa';
+                  headerRow.querySelectorAll('th').forEach(th => {
+                    th.style.position = 'static';
+                    th.style.backgroundColor = '#f8f9fa';
+                    th.style.fontWeight = 'bold';
+                  });
+                }
+              }
+
+              // Handle charts section
+              const chartsContainer = clonedDoc.getElementById('charts-container');
+              if (chartsContainer) {
+                Object.assign(chartsContainer.style, {
+                  marginBottom: '20px',
+                  pageBreakAfter: 'always'
+                });
+
+                chartCanvases.forEach((canvas, index) => {
+                  Object.assign(canvas.style, {
+                    maxHeight: 'none',
+                    height: '280px',
+                    width: '100%',
+                    marginBottom: index < chartCanvases.length - 1 ? '20px' : '0'
+                  });
+                  
+                  // Ensure each chart is properly sized
+                  const ctx = canvas.getContext('2d');
+                  if (ctx && canvas.chart) {
+                    canvas.chart.resize();
+                  }
+                });
+              }
+            }
+          }
+        };
+
+        await html2pdf().set(pdfOptions).from(dashboardContainer).save();
+        console.log("PDF export completed successfully.");
+      } catch (err) {
+        console.error("Error exporting PDF:", err);
+        alert('Error generating PDF. Please try again.');
+      } finally {
+        // Always reset the container state, whether successful or not
+        resetContainer();
+        
+        // Re-render the results to ensure View PDF buttons are properly restored
+        if (currentResults.length > 0) {
+          renderResults(currentResults);
+        }
+      }
     }
   
     // Initialize Flatpickr on the start and end date inputs.

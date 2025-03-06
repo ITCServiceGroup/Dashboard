@@ -76,6 +76,27 @@ body {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* Hide View PDF button when exporting to PDF */
+#dashboard-container.exporting-pdf .view-pdf-btn {
+  display: none !important;
+}
+
+/* Ensure proper chart sizing in PDF */
+#dashboard-container.exporting-pdf .charts-grid {
+  height: auto;
+  page-break-inside: avoid;
+}
+
+#dashboard-container.exporting-pdf canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Force each chart onto its own page in the PDF */
+#dashboard-container.exporting-pdf #charts-container > table tr {
+  page-break-inside: avoid;
+}
+
 #branding-logo {
   display: block;
   margin: 0 auto 20px auto; /* centers the logo and adds some bottom spacing */
@@ -143,10 +164,11 @@ body {
   background-color: #1c447f;
 }
 
+/* Results table positioning and spacing */
 #results-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin: 0;
   font-size: 14px;
 }
 
@@ -157,7 +179,18 @@ body {
   text-align: center;
 }
 
+#results-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 #results-table th {
+  position: sticky;
+  top: 0;
+  z-index: 11;
   background-image: linear-gradient(135deg, #1c447f, #275f9e);
   background-color: #1c447f; /* fallback solid color */
   color: #ffffff;
@@ -172,12 +205,68 @@ body {
   will-change: background-color;
 }
 
+#results-table th::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 2px;
+  background-color: rgba(28, 68, 127, 0.1);
+}
+
+/* Add gradient border under header */
+#results-table thead::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: linear-gradient(to right, #1c447f, #275f9e);
+  pointer-events: none;
+}
+
 #results-table th:hover {
   background: #1c447f;
 }
 
-#results-table td {
+/* Table row styling with improved transitions */
+#results-table tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #ffffff;
+}
+
+#results-table tr:nth-child(even) {
   background-color: #f8f8f8;
+}
+
+#results-table tr:hover {
+  background-color: #f0f5ff;
+  transform: translateZ(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+}
+
+#results-table td {
+  border: none;
+  border-right: 1px solid #e5e5e5;
+}
+
+#results-table td:last-child {
+  border-right: none;
+}
+
+/* Add subtle shadow to table */
+#results-container {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Add padding to table cells that have the View PDF button */
+#results-table td:has(.view-pdf-btn) {
+  padding-right: 15px;
 }
 
 .pagination {
@@ -212,8 +301,9 @@ body {
 }
 
 .export-buttons {
-  margin-top: 30px;
   text-align: center;
+  padding: 20px 0;
+  border-top: 1px solid #eee;
 }
 
 .export-buttons button {
@@ -347,34 +437,67 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Define a grid for the charts: 2 columns, 3 rows */
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+/* Charts section styling */
+#charts-container {
+  margin-top: 40px;
+  padding: 20px;
+  border-top: 2px solid #1c447f;
 }
 
-/* Optionally, force a fixed height for pie/doughnut charts (if needed) */
+/* Charts table styling */
+#charts-container table {
+  border-spacing: 0;
+  border-collapse: separate;
+  width: 100%;
+}
+
+#charts-container td {
+  padding: 20px;
+  vertical-align: middle;
+  width: 50%;
+  min-width: 450px;  /* Ensure enough space for the larger charts */
+}
+
+/* Chart wrapper styling */
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Common chart styles */
+.chart-wrapper canvas {
+  width: 100%;
+  max-width: 500px;
+  height: 375px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Circular charts specific styling */
 #timeChart, 
 #marketChart {
-  height: 300px; /* Adjust as needed */
+  aspect-ratio: 1;
+  max-width: 375px !important;
+  height: 375px !important;
 }
 
-/* Optionally, ensure other charts are sized appropriately */
-#scoreChart,
-#trendChart,
-#supervisorChart,
-#scatterChart {
-  height: auto;
-  /* You may set a min-height if desired */
-  min-height: 300px;
+/* Ensure charts maintain aspect ratio */
+canvas {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* --- Separation and Charts Title Styling --- */
-#charts-container {
-  margin-top: 40px;  /* Adds separation between the data and the charts section */
-  padding-top: 20px;
-  border-top: 2px solid #1c447f; /* Optional: adds a subtle dividing line */
+/* PDF Export Override for charts */
+#dashboard-container.exporting-pdf #charts-container {
+  height: auto !important;
+  overflow: visible !important;
+  margin-bottom: 30px;
 }
 
 #charts-container h2 {
@@ -401,13 +524,120 @@ body {
   background-color: #1c447f;
 }
 
-/* Set the container height to roughly the height of 15 rows.
-   Adjust the height value as needed depending on your row size. */
-   #results-container {
-    max-height: 600px;  /* You may need to tweak this value */
-    overflow-y: auto;
-    border: 1px solid #ddd; /* optional: to visually separate the container */
-  }
+/* Results section layout and spacing */
+#results-section {
+  margin-bottom: 30px;
+}
+
+/* Results container with fixed height and scrolling */
+#results-container {
+  height: 650px;
+  overflow-y: auto;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  position: relative;
+  background: white;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Add transition class for smooth height changes */
+#results-container.transitioning {
+  transition: all 0.3s ease-in-out;
+  will-change: height, max-height, overflow;
+}
+
+/* Base transition state */
+#results-container:not(.transitioning) {
+  transition: none;
+}
+
+/* Add transition for PDF export mode */
+#dashboard-container.exporting-pdf #results-container {
+  transition: all 0.3s ease;
+}
+
+/* Ensure container returns to scrollable state */
+#dashboard-container:not(.exporting-pdf) #results-container {
+  height: 650px !important;
+  overflow-y: auto !important;
+  transition: all 0.3s ease;
+}
+
+/* Ensure table respects container border radius */
+#results-table {
+  border-radius: inherit;
+}
+
+#results-table thead:first-child tr:first-child th:first-child {
+  border-top-left-radius: 8px;
+}
+
+#results-table thead:first-child tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+/* Apply transition to table for PDF export mode */
+#results-table {
+  transition: all 0.3s ease;
+  will-change: transform, height;
+}
+
+/* Ensure results container scrollbar looks good */
+#results-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+#results-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+#results-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+#results-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Override container styles when exporting to PDF with smooth transition */
+#dashboard-container.exporting-pdf #results-container {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: height 0.3s ease-out, max-height 0.3s ease-out;
+}
+
+/* Hide scrollbar when exporting to PDF */
+#dashboard-container.exporting-pdf #results-container::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Ensure table is fully visible in PDF with smooth transition */
+#dashboard-container.exporting-pdf #results-table {
+  height: auto !important;
+  overflow: visible !important;
+  page-break-inside: auto !important;
+  position: static !important;
+  transition: all 0.3s ease-out;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Prevent header from being sticky in PDF with smooth transition */
+#dashboard-container.exporting-pdf #results-table th {
+  position: static !important;
+  transition: position 0.3s ease-out;
+}
+
+/* Ensure smooth transition for table rows in PDF mode */
+#dashboard-container.exporting-pdf #results-table tr {
+  transition: page-break-inside 0.3s ease-out;
+}
   
   /* Optional: Ensure the table takes full width */
   #results-table {
